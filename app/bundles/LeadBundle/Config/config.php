@@ -1049,11 +1049,16 @@ return [
                 ],
             ],
             'mautic.lead.model.field' => [
-                'class'     => 'Mautic\LeadBundle\Model\FieldModel',
+                'class'     => \Mautic\LeadBundle\Model\FieldModel::class,
                 'arguments' => [
-                    'mautic.schema.helper.index',
                     'mautic.schema.helper.column',
                     'mautic.lead.model.list',
+                    'mautic.lead.field.custom_field_column',
+                    'mautic.lead.field.field_dispatcher',
+                    'mautic.lead.repository.field',
+                    'mautic.lead.field.fields_with_unique_identifier',
+                    'mautic.lead.field.field_list',
+                    'mautic.lead.field.lead_field_saver',
                 ],
             ],
             'mautic.lead.model.list' => [
@@ -1285,6 +1290,48 @@ return [
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                     'monolog.logger.mautic',
+                ]
+            ],
+            'mautic.lead.field.schema_definition' => [
+                'class'     => Mautic\LeadBundle\Field\SchemaDefinition::class,
+            ],
+            'mautic.lead.field.custom_field_column' => [
+                'class'     => Mautic\LeadBundle\Field\CustomFieldColumn::class,
+                'arguments' => [
+                    'mautic.schema.helper.index',
+                    'mautic.schema.helper.column',
+                    'mautic.lead.field.schema_definition',
+                    'monolog.logger.mautic',
+                    'translator',
+                    'mautic.lead.field.fields_with_unique_identifier',
+                    'mautic.lead.field.lead_field_saver',
+                ],
+            ],
+            'mautic.lead.field.field_dispatcher' => [
+                'class'     => Mautic\LeadBundle\Field\FieldDispatcher::class,
+                'arguments' => [
+                    'event_dispatcher',
+                    'doctrine.orm.entity_manager',
+                ],
+            ],
+            'mautic.lead.field.fields_with_unique_identifier' => [
+                'class'     => Mautic\LeadBundle\Field\FieldsWithUniqueIdentifier::class,
+                'arguments' => [
+                    'mautic.lead.field.field_list',
+                ],
+            ],
+            'mautic.lead.field.field_list' => [
+                'class'     => Mautic\LeadBundle\Field\FieldList::class,
+                'arguments' => [
+                    'mautic.lead.repository.field',
+                    'translator',
+                ],
+            ],
+            'mautic.lead.field.lead_field_saver' => [
+                'class'     => Mautic\LeadBundle\Field\LeadFieldSaver::class,
+                'arguments' => [
+                    'mautic.lead.repository.field',
+                    'mautic.lead.field.field_dispatcher',
                 ],
             ],
         ],
