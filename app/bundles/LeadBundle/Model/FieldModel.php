@@ -20,7 +20,7 @@ use Mautic\FormBundle\Entity\Field;
 use Mautic\LeadBundle\Entity\LeadField;
 use Mautic\LeadBundle\Entity\LeadFieldRepository;
 use Mautic\LeadBundle\Field\CustomFieldColumn;
-use Mautic\LeadBundle\Field\FieldDispatcher;
+use Mautic\LeadBundle\Field\Dispatcher\FieldSaveDispatcher;
 use Mautic\LeadBundle\Field\FieldList;
 use Mautic\LeadBundle\Field\FieldsWithUniqueIdentifier;
 use Mautic\LeadBundle\Field\LeadFieldSaver;
@@ -308,9 +308,9 @@ class FieldModel extends FormModel
     private $customFieldColumn;
 
     /**
-     * @var FieldDispatcher
+     * @var FieldSaveDispatcher
      */
-    private $fieldDispatcher;
+    private $fieldSaveDispatcher;
 
     /**
      * @var LeadFieldRepository
@@ -341,7 +341,7 @@ class FieldModel extends FormModel
      * @param ColumnSchemaHelper         $columnSchemaHelper
      * @param ListModel                  $leadListModel
      * @param CustomFieldColumn          $customFieldColumn
-     * @param FieldDispatcher            $fieldDispatcher
+     * @param FieldSaveDispatcher        $fieldSaveDispatcher
      * @param LeadFieldRepository        $leadFieldRepository
      * @param FieldsWithUniqueIdentifier $fieldsWithUniqueIdentifier
      * @param FieldList                  $fieldList
@@ -351,7 +351,7 @@ class FieldModel extends FormModel
         ColumnSchemaHelper $columnSchemaHelper,
         ListModel $leadListModel,
         CustomFieldColumn $customFieldColumn,
-        FieldDispatcher $fieldDispatcher,
+        FieldSaveDispatcher $fieldSaveDispatcher,
         LeadFieldRepository $leadFieldRepository,
         FieldsWithUniqueIdentifier $fieldsWithUniqueIdentifier,
         FieldList $fieldList,
@@ -360,7 +360,7 @@ class FieldModel extends FormModel
         $this->columnSchemaHelper         = $columnSchemaHelper;
         $this->leadListModel              = $leadListModel;
         $this->customFieldColumn          = $customFieldColumn;
-        $this->fieldDispatcher            = $fieldDispatcher;
+        $this->fieldSaveDispatcher        = $fieldSaveDispatcher;
         $this->leadFieldRepository        = $leadFieldRepository;
         $this->fieldsWithUniqueIdentifier = $fieldsWithUniqueIdentifier;
         $this->fieldList                  = $fieldList;
@@ -729,7 +729,7 @@ class FieldModel extends FormModel
             throw new MethodNotAllowedHttpException(['LeadField']);
         }
 
-        return $this->fieldDispatcher->dispatchEventBc($action, $entity, $isNew, $event);
+        return $this->fieldSaveDispatcher->dispatchEventBc($action, $entity, $isNew, $event);
     }
 
     /**

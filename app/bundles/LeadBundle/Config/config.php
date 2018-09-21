@@ -1054,7 +1054,7 @@ return [
                     'mautic.schema.helper.column',
                     'mautic.lead.model.list',
                     'mautic.lead.field.custom_field_column',
-                    'mautic.lead.field.field_dispatcher',
+                    'mautic.lead.field.dispatcher.field_save_dispatcher',
                     'mautic.lead.repository.field',
                     'mautic.lead.field.fields_with_unique_identifier',
                     'mautic.lead.field.field_list',
@@ -1304,6 +1304,7 @@ return [
                     'translator',
                     'mautic.lead.field.lead_field_saver',
                     'mautic.lead.field.custom_field_index',
+                    'mautic.lead.field.dispatcher.field_column_dispatcher',
                 ],
             ],
             'mautic.lead.field.custom_field_index' => [
@@ -1314,11 +1315,18 @@ return [
                     'mautic.lead.field.fields_with_unique_identifier',
                 ],
             ],
-            'mautic.lead.field.field_dispatcher' => [
-                'class'     => Mautic\LeadBundle\Field\FieldDispatcher::class,
+            'mautic.lead.field.dispatcher.field_save_dispatcher' => [
+                'class'     => Mautic\LeadBundle\Field\Dispatcher\FieldSaveDispatcher::class,
                 'arguments' => [
                     'event_dispatcher',
                     'doctrine.orm.entity_manager',
+                ],
+            ],
+            'mautic.lead.field.dispatcher.field_column_dispatcher' => [
+                'class'     => Mautic\LeadBundle\Field\Dispatcher\FieldColumnDispatcher::class,
+                'arguments' => [
+                    'event_dispatcher',
+                    'mautic.lead.field.settings.background_settings',
                 ],
             ],
             'mautic.lead.field.fields_with_unique_identifier' => [
@@ -1338,7 +1346,13 @@ return [
                 'class'     => Mautic\LeadBundle\Field\LeadFieldSaver::class,
                 'arguments' => [
                     'mautic.lead.repository.field',
-                    'mautic.lead.field.field_dispatcher',
+                    'mautic.lead.field.dispatcher.field_save_dispatcher',
+                ],
+            ],
+            'mautic.lead.field.settings.background_settings' => [
+                'class'     => Mautic\LeadBundle\Field\Settings\BackgroundSettings::class,
+                'arguments' => [
+                    'mautic.helper.core_parameters',
                 ],
             ],
         ],
