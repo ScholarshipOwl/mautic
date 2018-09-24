@@ -21,6 +21,7 @@ use Mautic\LeadBundle\Entity\LeadField;
 use Mautic\LeadBundle\Entity\LeadFieldRepository;
 use Mautic\LeadBundle\Field\CustomFieldColumn;
 use Mautic\LeadBundle\Field\Dispatcher\FieldSaveDispatcher;
+use Mautic\LeadBundle\Field\Exception\CustomFieldLimitException;
 use Mautic\LeadBundle\Field\FieldList;
 use Mautic\LeadBundle\Field\FieldsWithUniqueIdentifier;
 use Mautic\LeadBundle\Field\LeadFieldSaver;
@@ -390,7 +391,7 @@ class FieldModel extends FormModel
      *
      * @param $id
      *
-     * @return null|object
+     * @return null|LeadField
      */
     public function getEntity($id = null)
     {
@@ -398,9 +399,7 @@ class FieldModel extends FormModel
             return new LeadField();
         }
 
-        $entity = parent::getEntity($id);
-
-        return $entity;
+        return parent::getEntity($id);
     }
 
     /**
@@ -482,7 +481,12 @@ class FieldModel extends FormModel
             $this->leadFieldSaver->saveLeadFieldEntity($entity, false);
         }
 
-        $this->customFieldColumn->createLeadColumn($entity);
+        try {
+            $this->customFieldColumn->createLeadColumn($entity);
+        } catch (CustomFieldLimitException $e) {
+            // Convert to original Exception not to cause BC
+            throw new DBALException($this->translator->trans($e->getMessage()));
+        }
 
         // Update order of the other fields.
         $this->reorderFieldsByEntity($entity);
