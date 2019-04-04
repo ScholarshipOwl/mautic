@@ -219,7 +219,7 @@ class ReportSubscriber extends CommonSubscriber
                 $qb->from(MAUTIC_TABLE_PREFIX.'push_notifications', 'pn');
                 $event->addCategoryLeftJoin($qb, 'pn');
 
-                if ($event->hasColumn($clickColumns) || $event->hasFilter($clickColumns)) {
+                if ($event->usesColumn($clickColumns)) {
                     $qbcut->select(
                         'COUNT(cut2.channel_id) AS trackable_count, SUM(cut2.hits) AS hits',
                         'SUM(cut2.unique_hits) AS unique_hits',
@@ -240,7 +240,7 @@ class ReportSubscriber extends CommonSubscriber
                     ->addIpAddressLeftJoin($qb, 'pns')
                     ->applyDateFilters($qb, 'date_sent', 'pns');
 
-                if ($event->hasColumn($clickColumns) || $event->hasFilter($clickColumns)) {
+                if ($event->usesColumn($clickColumns)) {
                     $qbcut->select('COUNT(ph.id) AS hits', 'COUNT(DISTINCT(ph.redirect_id)) AS unique_hits', 'cut2.channel_id', 'ph.lead_id')
                         ->from(MAUTIC_TABLE_PREFIX.'channel_url_trackables', 'cut2')
                         ->join(
