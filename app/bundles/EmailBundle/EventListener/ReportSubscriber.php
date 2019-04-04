@@ -328,9 +328,9 @@ class ReportSubscriber extends CommonSubscriber
 
         // channel_url_trackables subquery
         $qbcut             = $this->db->createQueryBuilder();
-        $useDncColumns     = $event->hasColumn(array_keys(self::DNC_COLUMNS));
-        $useVariantColumns = $event->hasColumn(array_keys(self::EMAIL_VARIANT_COLUMNS));
-        $useClickColumns   = $event->hasColumn(array_keys(self::CLICK_COLUMNS)) || $event->hasColumn('is_hit');
+        $useDncColumns     = $event->usesColumn(array_keys(self::DNC_COLUMNS));
+        $useVariantColumns = $event->usesColumn(array_keys(self::EMAIL_VARIANT_COLUMNS));
+        $useClickColumns   = $event->usesColumn(array_keys(self::CLICK_COLUMNS)) || $event->usesColumn('is_hit');
 
         switch ($context) {
             case self::CONTEXT_EMAILS:
@@ -369,8 +369,8 @@ class ReportSubscriber extends CommonSubscriber
             case self::CONTEXT_EMAIL_STATS:
                 $qb->from(MAUTIC_TABLE_PREFIX.'email_stats', self::EMAIL_STATS_PREFIX);
 
-                if ($event->hasColumnWithPrefix(self::EMAILS_PREFIX)
-                    || $event->hasColumnWithPrefix(ReportGeneratorEvent::CATEGORY_PREFIX)
+                if ($event->usesColumnWithPrefix(self::EMAILS_PREFIX)
+                    || $event->usesColumnWithPrefix(ReportGeneratorEvent::CATEGORY_PREFIX)
                     || $useVariantColumns
                 ) {
                     $qb->leftJoin(self::EMAIL_STATS_PREFIX, MAUTIC_TABLE_PREFIX.'emails', self::EMAILS_PREFIX, 'e.id = es.email_id');
