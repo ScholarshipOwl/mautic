@@ -217,7 +217,7 @@ class SegmentReportSubscriberTest extends \PHPUnit_Framework_TestCase
             ->with()
             ->willReturn([]);
 
-        $reportMock->expects($this->exactly(2))
+        $reportMock->expects($this->exactly(1))
             ->method('getFilters')
             ->with()
             ->willReturn([]);
