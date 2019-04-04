@@ -360,6 +360,7 @@ class ReportGeneratorEvent extends AbstractReportEvent
      * @param bool         $dateOnly
      *
      * @return $this
+     *
      * @throws \Exception
      */
     public function applyDateFilters(QueryBuilder $queryBuilder, $dateColumn, $tablePrefix = 't', $dateOnly = false)
@@ -404,7 +405,7 @@ class ReportGeneratorEvent extends AbstractReportEvent
     }
 
     /**
-     * Returns true if the report uses the column anywhere in the query
+     * Returns true if the report uses the column anywhere in the query.
      *
      * @param $column
      *
@@ -416,7 +417,7 @@ class ReportGeneratorEvent extends AbstractReportEvent
     }
 
     /**
-     * Returns true if the report uses the prefix anywhere in the query
+     * Returns true if the report uses the prefix anywhere in the query.
      *
      * @param $prefix
      *
@@ -424,8 +425,7 @@ class ReportGeneratorEvent extends AbstractReportEvent
      */
     public function usesColumnWithPrefix($prefix)
     {
-        if ($this->hasColumnWithPrefix($prefix))
-        {
+        if ($this->hasColumnWithPrefix($prefix)) {
             return true;
         }
 
@@ -530,7 +530,7 @@ class ReportGeneratorEvent extends AbstractReportEvent
         }
 
         $this->sortedFilters = [];
-        $filters = (array) $this->getReport()->getFilters();
+        $filters             = (array) $this->getReport()->getFilters();
 
         foreach ($filters as $field) {
             $this->sortedFilters[$field['column']] = true;
