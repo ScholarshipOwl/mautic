@@ -657,7 +657,7 @@ class ReportSubscriber extends CommonSubscriber
     }
 
     /**
-     * @param QueryBuilder $queryBuilder
+     * @param QueryBuilder     $queryBuilder
      * @param ReportGraphEvent $event
      */
     private function joinEmailsTableIfMissing(QueryBuilder $queryBuilder, ReportGraphEvent $event)
