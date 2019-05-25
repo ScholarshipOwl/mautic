@@ -13,10 +13,14 @@ namespace Mautic\DashboardBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\CoreBundle\Helper\InputHelper;
+use Mautic\DashboardBundle\Dashboard\Widget as WidgetService;
 use Mautic\DashboardBundle\Entity\Widget;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class DashboardController.
@@ -39,36 +43,20 @@ class DashboardController extends FormController
             return $this->applyDashboardFileAction('global.default');
         }
 
-        $humanFormat     = 'M j, Y';
-        $mysqlFormat     = 'Y-m-d';
         $action          = $this->generateUrl('mautic_dashboard_index');
         $dateRangeFilter = $this->request->get('daterange', []);
 
-        // Set new date range to the session
-        if ($this->request->isMethod('POST')) {
-            $session = $this->get('session');
-            if (!empty($dateRangeFilter['date_from'])) {
-                $from = new \DateTime($dateRangeFilter['date_from']);
-                $session->set('mautic.daterange.form.from', $from->format($mysqlFormat));
-            }
-
-            if (!empty($dateRangeFilter['date_to'])) {
-                $to = new \DateTime($dateRangeFilter['date_to']);
-                $session->set('mautic.daterange.form.to', $to->format($mysqlFormat));
-            }
-
-            $model->clearDashboardCache();
-        }
+        // Set new date range to the session, if present in POST
+        $request = $this->get('request_stack')->getCurrentRequest();
+        $this->get('mautic.dashboard.widget')->setFilter($request);
 
         // Load date range from session
         $filter = $model->getDefaultFilter();
 
-        // Set the final date range to the form
-        $dateRangeFilter['date_from'] = $filter['dateFrom']->format($humanFormat);
-        $dateRangeFilter['date_to']   = $filter['dateTo']->format($humanFormat);
+        // Create form with the final date range
+        $dateRangeFilter['date_from'] = $filter['dateFrom']->format(WidgetService::FORMAT_HUMAN);
+        $dateRangeFilter['date_to']   = $filter['dateTo']->format(WidgetService::FORMAT_HUMAN);
         $dateRangeForm                = $this->get('form.factory')->create('daterange', $dateRangeFilter, ['action' => $action]);
-
-        $model->populateWidgetsContent($widgets, $filter);
 
         return $this->delegateView([
             'viewParameters' => [
@@ -82,6 +70,40 @@ class DashboardController extends FormController
                 'mauticContent' => 'dashboard',
                 'route'         => $this->generateUrl('mautic_dashboard_index'),
             ],
+        ]);
+    }
+
+    /**
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function widgetAction($widgetId)
+    {
+        $request = $this->get('request_stack')->getCurrentRequest();
+
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException('Not found.');
+        }
+
+        /** @var WidgetService $widgetService */
+        $widgetService = $this->get('mautic.dashboard.widget');
+        $widgetService->setFilter($request);
+        $widget        = $widgetService->get((int) $widgetId);
+
+        if (!$widget) {
+            throw new NotFoundHttpException('Not found.');
+        }
+
+        $response = $this->render(
+            'MauticDashboardBundle:Dashboard:widget.html.php',
+            ['widget' => $widget]
+        );
+
+        return new JsonResponse([
+            'success'      => 1,
+            'widgetId'     => $widgetId,
+            'widgetHtml'   => $response->getContent(),
+            'widgetWidth'  => $widget->getWidth(),
+            'widgetHeight' => $widget->getHeight(),
         ]);
     }
 
@@ -215,7 +237,7 @@ class DashboardController extends FormController
     }
 
     /**
-     * Deletes the entity.
+     * Deletes entity if exists.
      *
      * @param int $objectId
      *
@@ -223,30 +245,20 @@ class DashboardController extends FormController
      */
     public function deleteAction($objectId)
     {
-        $returnUrl = $this->generateUrl('mautic_dashboard_index');
-        $success   = 0;
-        $flashes   = [];
+        /** @var Request $request */
+        $request = $this->get('request_stack')->getCurrentRequest();
 
-        $postActionVars = [
-            'returnUrl'       => $returnUrl,
-            'contentTemplate' => 'MauticDashboardBundle:Dashboard:index',
-            'passthroughVars' => [
-                'activeLink'    => '#mautic_dashboard_index',
-                'success'       => $success,
-                'mauticContent' => 'dashboard',
-            ],
-        ];
+        if (!$request->isXmlHttpRequest()) {
+            throw new BadRequestHttpException();
+        }
+
+        $flashes = [];
+        $success = 0;
 
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
         $model  = $this->getModel('dashboard');
         $entity = $model->getEntity($objectId);
-        if ($entity === null) {
-            $flashes[] = [
-                'type'    => 'error',
-                'msg'     => 'mautic.api.client.error.notfound',
-                'msgVars' => ['%id%' => $objectId],
-            ];
-        } else {
+        if ($entity) {
             $model->deleteEntity($entity);
             $name      = $entity->getName();
             $flashes[] = [
@@ -257,15 +269,20 @@ class DashboardController extends FormController
                     '%id%'   => $objectId,
                 ],
             ];
+            $success = 1;
+        } else {
+            $flashes[] = [
+                'type'    => 'error',
+                'msg'     => 'mautic.api.client.error.notfound',
+                'msgVars' => ['%id%' => $objectId],
+            ];
         }
 
         return $this->postActionRedirect(
-            array_merge(
-                $postActionVars,
-                [
-                    'flashes' => $flashes,
-                ]
-            )
+            [
+                'success' => $success,
+                'flashes' => $flashes,
+            ]
         );
     }
 
