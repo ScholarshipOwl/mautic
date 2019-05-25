@@ -55,6 +55,7 @@ $container
 // Setup memcache as the ORM storage
 $container->loadFromExtension('doctrine', [
   'orm' => [
+    'auto_generate_proxy_classes' => true,
     'metadata_cache_driver' => [
       'type' => 'memcached',
       'host' => $memcacheHost,
