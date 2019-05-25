@@ -1,4 +1,5 @@
 <?php
+use Symfony\Component\DependencyInjection\Reference;
 
 $loader->import('config.php');
 
@@ -11,33 +12,26 @@ if (file_exists(__DIR__.'/security_local.php')) {
 // Setup memcache as the session storage
 $memcacheHost = $container->hasParameter('mautic.memcache_host') ? $container->getParameter('mautic.memcache_host') : null;
 $memcachePort = $container->hasParameter('mautic.memcache_port') ? $container->getParameter('mautic.memcache_port') : null;
+$memcachePrefix = 'sess_';
 
 $container->loadFromExtension('framework', [
   'session' => [
-    'handler_id' => 'session.handler.memcached'
+    'handler_id' => 'session.handler.memcached',
   ],
+
   'validation' => [
-    'cache' => 'apc'
+    'cache' => 'apc',
   ]
 ]);
 
-$container->loadFromExtension('services', [
-  'session.memcached' => [
-    'class' => 'Memcached',
-    'calls' => [ 'addServer', [ $memcacheHost, $memcachePort ]],
-  ],
+$container
+  ->register('session.memcached', 'Memcached')
+  ->addArgument($memcachePrefix)
+  ->addMethodCall('addServer', [$memcacheHost, $memcachePort]);
 
-  'session.handler.memcached' => [
-    'class' => Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcachedSessionHandler,
-    'arguments' => [
-      '@session.memcached',
-      [
-        'prefix' => 'sess_',
-        'expiretime' => 1440,
-      ],
-    ],
-  ],
-]);
+$container
+  ->register('session.handler.memcached', 'Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcachedSessionHandler')
+  ->addArgument(new Reference('session.memcached'), ['prefix' => $memcachePrefix, 'expiretime' => 86400]);
 
 // Setup memcache as the ORM storage
 $container->loadFromExtension('doctrine', [
