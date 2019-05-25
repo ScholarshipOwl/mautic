@@ -8,25 +8,66 @@ if (file_exists(__DIR__.'/security_local.php')) {
     $loader->import('security.php');
 }
 
-/*
-$container->loadFromExtension("framework", array(
-    "validation" => array(
-        "cache" => "apc"
-    )
-));
+// Setup memcache as the session storage
+$memcacheHost = $container->hasParameter('mautic.memcache_host') ? $container->getParameter('mautic.memcache_host') : null;
+$memcachePort = $container->hasParameter('mautic.memcache_port') ? $container->getParameter('mautic.memcache_port') : null;
 
-$container->loadFromExtension("doctrine", array(
-    "orm" => array(
-        "metadata_cache_driver" => "apc",
-        "result_cache_driver"   => "apc",
-        "query_cache_driver"    => "apc"
-    )
-));
-*/
+$container->loadFromExtension('framework', [
+  'session' => [
+    'handler_id' => 'session.handler.memcached'
+  ],
+  'validation' => [
+    'cache' => 'apc'
+  ]
+]);
 
+$container->loadFromExtension('services', [
+  'session.memcached' => [
+    'class' => 'Memcached',
+    'calls' => [ 'addServer', [ $memcacheHost, $memcachePort ]],
+  ],
+
+  'session.handler.memcached' => [
+    'class' => Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcachedSessionHandler,
+    'arguments' => [
+      '@session.memcached',
+      [
+        'prefix' => 'sess_',
+        'expiretime' => 1440,
+      ],
+    ],
+  ],
+]);
+
+// Setup memcache as the ORM storage
+$container->loadFromExtension('doctrine', [
+  'orm' => [
+    'metadata_cache_driver' => [
+      'type' => 'memcached',
+      'host' => $memcacheHost,
+      'port' => $memcachePort,
+      'instance_class' => 'Memcached',
+    ],
+    'result_cache_driver'   => [
+      'type' => 'memcached',
+      'host' => $memcacheHost,
+      'port' => $memcachePort,
+      'instance_class' => 'Memcached',
+    ],
+    'query_cache_driver'    => [
+      'type' => 'memcached',
+      'host' => $memcacheHost,
+      'port' => $memcachePort,
+      'instance_class' => 'Memcached',
+    ],
+  ]
+]);
+
+// Add support for slave reading
 $dbHostRO = $container->hasParameter('mautic.db_host_ro') ? $container->getParameter('mautic.db_host_ro') : null;
-if (!empty($dbHostRO)) {
+$dbPortRO = $container->hasParameter('mautic.db_port_ro') ? $container->getParameter('mautic.db_port_ro') : null;
 
+if (!empty($dbHostRO)) {
   // Default from config.php
   $dbalSettings = [
     'driver'   => '%mautic.db_driver%',
@@ -49,21 +90,22 @@ if (!empty($dbHostRO)) {
     'server_version' => '%mautic.db_server_version%',
   ];
 
-  // Add a single slave (which is a load balanced Aurora read-only cluster).
+  // Add a slave slave
   $dbalSettings['keep_slave'] = true;
   $dbalSettings['slaves'] = [
     'slave1' => [
       'host'     => $dbHostRO,
-      'port'     => '%mautic.db_port%',
+      'port'     => $dbPortRO,
       'dbname'   => '%mautic.db_name%',
       'user'     => '%mautic.db_user%',
       'password' => '%mautic.db_password%',
       'charset'  => 'UTF8',
     ]
   ];
-  $container->loadFromExtension('doctrine', array(
+
+  $container->loadFromExtension('doctrine', [
     'dbal' => $dbalSettings
-  ));
+  ]);
 }
 
 $debugMode = $container->hasParameter('mautic.debug') ? $container->getParameter('mautic.debug') : $container->getParameter('kernel.debug');
