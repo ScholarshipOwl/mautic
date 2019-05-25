@@ -9,6 +9,25 @@ if (file_exists(__DIR__.'/security_local.php')) {
     $loader->import('security.php');
 }
 
+
+// Non-default security settings for mautic-eb.
+if ('prod' == $container->getParameter('kernel.environment')) {
+  $restrictedConfigFields = $container->getParameter('mautic.security.restrictedConfigFields');
+  $container->setParameter('mautic.security.restrictedConfigFields', array_merge($restrictedConfigFields, [
+    'tmp_path',
+    'log_path',
+    'image_path',
+    'upload_dir',
+    'site_url',
+  ]));
+  $container->setParameter('mautic.security.disableUpdates', true);
+}
+
+// Speed up batch processing at the cost of CPU cycles.
+// By default Mautic sleeps 1 full second between batches.
+// We'll drop that down to 50ms.
+$container->setParameter('mautic.batch_sleep_time', .050);
+
 // Setup memcache as the session storage
 $memcacheHost = $container->hasParameter('mautic.memcache_host') ? $container->getParameter('mautic.memcache_host') : null;
 $memcachePort = $container->hasParameter('mautic.memcache_port') ? $container->getParameter('mautic.memcache_port') : null;
