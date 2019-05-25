@@ -92,8 +92,9 @@ if (!empty($dbHostRO)) {
     'password' => '%mautic.db_password%',
     'charset'  => 'UTF8',
     'types'    => [
-      'array'    => 'Mautic\CoreBundle\Doctrine\Type\ArrayType',
-      'datetime' => 'Mautic\CoreBundle\Doctrine\Type\UTCDateTimeType',
+      'array'     => 'Mautic\CoreBundle\Doctrine\Type\ArrayType',
+      'datetime'  => 'Mautic\CoreBundle\Doctrine\Type\UTCDateTimeType',
+      'generated' => 'Mautic\CoreBundle\Doctrine\Type\GeneratedType',
     ],
     // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
     'mapping_types' => [
