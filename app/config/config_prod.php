@@ -86,7 +86,11 @@ if (!empty($dbHostRO)) {
     'dbname'   => '%mautic.db_name%',
     'user'     => '%mautic.db_user%',
     'password' => '%mautic.db_password%',
-    'charset'  => 'UTF8',
+    'charset'  => 'utf8mb4',
+    'default_table_options' => [
+      'charset' => 'utf8mb4',
+      'collate' => 'utf8mb4_unicode_ci',
+    ],
     'types'    => [
       'array'     => 'Mautic\CoreBundle\Doctrine\Type\ArrayType',
       'datetime'  => 'Mautic\CoreBundle\Doctrine\Type\UTCDateTimeType',
