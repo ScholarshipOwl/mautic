@@ -37,10 +37,6 @@ $container->loadFromExtension('framework', [
   'session' => [
     'handler_id' => 'session.handler.memcached',
   ],
-
-  'validation' => [
-    'cache' => 'apc',
-  ]
 ]);
 
 $container
