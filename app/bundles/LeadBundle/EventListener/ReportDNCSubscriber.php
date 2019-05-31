@@ -134,11 +134,11 @@ class ReportDNCSubscriber extends CommonSubscriber
         $qb->from(MAUTIC_TABLE_PREFIX.'lead_donotcontact', 'dnc');
         $qb->leftJoin('dnc', MAUTIC_TABLE_PREFIX.'leads', 'l', 'l.id = dnc.lead_id');
 
-        if ($event->hasColumn(['u.first_name', 'u.last_name']) || $event->hasFilter(['u.first_name', 'u.last_name'])) {
+        if ($event->usesColumn(['u.first_name', 'u.last_name'])) {
             $qb->leftJoin('l', MAUTIC_TABLE_PREFIX.'users', 'u', 'u.id = l.owner_id');
         }
 
-        if ($event->hasColumn('i.ip_address') || $event->hasFilter('i.ip_address')) {
+        if ($event->usesColumn('i.ip_address')) {
             $event->addLeadIpAddressLeftJoin($qb);
         }
 
