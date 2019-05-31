@@ -29,9 +29,9 @@ if ('prod' == $container->getParameter('kernel.environment')) {
 $container->setParameter('mautic.batch_sleep_time', .050);
 
 // Setup memcache as the session storage
-$memcacheHost = $container->hasParameter('mautic.memcache_host') ? $container->getParameter('mautic.memcache_host') : null;
-$memcachePort = $container->hasParameter('mautic.memcache_port') ? $container->getParameter('mautic.memcache_port') : null;
-$memcachePrefix = 'sess_';
+$memcacheSessionHost = $container->hasParameter('mautic.memcache_session_host') ? $container->getParameter('mautic.memcache_session_host') : null;
+$memcacheSessionPort = $container->hasParameter('mautic.memcache_session_port') ? $container->getParameter('mautic.memcache_session_port') : null;
+$memcacheSessionPrefix = 'sess_';
 
 $container->loadFromExtension('framework', [
   'session' => [
@@ -41,8 +41,8 @@ $container->loadFromExtension('framework', [
 
 $container
   ->register('session.memcached', 'Memcached')
-  ->addArgument($memcachePrefix)
-  ->addMethodCall('addServer', [$memcacheHost, $memcachePort]);
+  ->addArgument($memcacheSessionPrefix)
+  ->addMethodCall('addServer', [$memcacheSessionHost, $memcacheSessionPort]);
 
 $container
   ->register('session.handler.memcached', 'Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcachedSessionHandler')
