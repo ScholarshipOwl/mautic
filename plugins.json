@@ -1,4 +1,5 @@
 {
     "thedmsgroup\/mautic-dashboard-warm-bundle": "2.15.0.0",
-    "kuzmany\/mautic-extendee-tools-bundle": "1.0.1.0"
+    "kuzmany\/mautic-extendee-tools-bundle": "1.0.1.0",
+    "thedmsgroup\/mautic-segment-extras-bundle": "2.15.0.0"
 }

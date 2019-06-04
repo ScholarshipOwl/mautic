@@ -117,7 +117,8 @@
         "cweagans/composer-patches": "^1.6",
         "sensio/framework-extra-bundle": "~3.0",
         "thedmsgroup/mautic-dashboard-warm-bundle": "^2.15",
-        "kuzmany/mautic-extendee-tools-bundle": "^1.0"
+        "kuzmany/mautic-extendee-tools-bundle": "^1.0",
+        "thedmsgroup/mautic-segment-extras-bundle": "^2.15"
     },
     "require-dev": {
         "symfony/web-profiler-bundle": "~2.8",
