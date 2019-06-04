@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e5968ae8713666db487d7ec836e4627",
+    "content-hash": "fe35a440321f4b4fc98cd578c3d81709",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -8376,6 +8376,43 @@
                 "plugin"
             ],
             "time": "2018-11-27T17:35:44+00:00"
+        },
+        {
+            "name": "thedmsgroup/mautic-segment-extras-bundle",
+            "version": "2.15.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TheDMSGroup/mautic-segment-extras.git",
+                "reference": "11246df27e8440cb030f9ff9ba1e0bc35b4f21b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TheDMSGroup/mautic-segment-extras/zipball/11246df27e8440cb030f9ff9ba1e0bc35b4f21b6",
+                "reference": "11246df27e8440cb030f9ff9ba1e0bc35b4f21b6",
+                "shasum": ""
+            },
+            "require": {
+                "mautic/composer-plugin": "^1.0"
+            },
+            "type": "mautic-plugin",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Scott Shipman",
+                    "email": "scottshipmang@gmail.com"
+                }
+            ],
+            "description": "Extends Mautic Lead Bundle's Lead List (Segment) functionality.",
+            "keywords": [
+                "Marketing Automation",
+                "Mautic",
+                "marketing",
+                "plugin"
+            ],
+            "time": "2018-11-12T14:19:41+00:00"
         },
         {
             "name": "twig/twig",

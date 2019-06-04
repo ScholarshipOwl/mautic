@@ -46,12 +46,13 @@ $container
 
 $container
   ->register('session.handler.memcached', 'Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcachedSessionHandler')
-  ->addArgument(new Reference('session.memcached'), ['prefix' => $memcachePrefix, 'expiretime' => 86400]);
+  ->addArgument(new Reference('session.memcached'), ['prefix' => $memcacheSessionPrefix, 'expiretime' => 86400]);
 
 // Setup memcache as the ORM storage
+$memcacheHost = $container->hasParameter('mautic.memcache_host') ? $container->getParameter('mautic.memcache_host') : null;
+$memcachePort = $container->hasParameter('mautic.memcache_port') ? $container->getParameter('mautic.memcache_port') : null;
 $container->loadFromExtension('doctrine', [
   'orm' => [
-    'auto_generate_proxy_classes' => true,
     'metadata_cache_driver' => [
       'type' => 'memcached',
       'host' => $memcacheHost,
